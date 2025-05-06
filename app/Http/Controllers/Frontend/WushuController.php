@@ -12,6 +12,9 @@ use App\Models\UserInfo;
 use Illuminate\Http\Request;
 use App\Models\ContactRecord;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+
 
 class WushuController extends Controller
 {
@@ -89,7 +92,5 @@ class WushuController extends Controller
         ]);
         return redirect(route('wushu.contact'));
     }
-
-
 
 }

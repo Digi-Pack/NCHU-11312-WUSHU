@@ -98,7 +98,6 @@ function formatStatus(status) {
 };
 import ProductCard from '@/components/ProductCard.vue';
 
-// 讀取已購買的商品
 
 </script>
 

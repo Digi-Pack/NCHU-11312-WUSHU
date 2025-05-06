@@ -62,4 +62,6 @@ Route::prefix('wushu')->group(function () {
     Route::get('/MemberCenter', function () {
         return Inertia::render('frontend/MemberCenter');
     });
+
+    Route::post('/login', [WushuController::class, 'login'])->name('login');
 });

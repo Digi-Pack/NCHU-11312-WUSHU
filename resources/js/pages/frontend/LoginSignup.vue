@@ -55,11 +55,11 @@ const register = async () => {
 
     // 發送POST請求到後端註冊API
     const response = await axios.post('/api/register', userData);
-    
+
     if (response.data.success) {
       alert('註冊成功！請前往登入');
       tab.value = 'login';
-      
+
       // 自動填入登入欄位
       loginEmail.value = email.value;
       loginPassword.value = '';
@@ -82,7 +82,7 @@ const login = async () => {
       email: loginEmail.value,
       password: loginPassword.value
     });
-    
+
     if (response.data.success) {
       alert('登入成功');
       // 重定向到會員中心
@@ -104,7 +104,8 @@ const login = async () => {
 
 <template>
   <header class="flex h-[234px] w-full flex-col items-center bg-black sm:h-[303px] xl:h-[444px]">
-    <p class="pt-[120px] font-serif text-[32px]/[46px] font-bold text-grayWhite sm:pt-[160px] sm:text-[52px]/[75px] xl:pt-[224px] xl:text-[64px]/[92px]">
+    <p
+      class="pt-[120px] font-serif text-[32px]/[46px] font-bold text-grayWhite sm:pt-[160px] sm:text-[52px]/[75px] xl:pt-[224px] xl:text-[64px]/[92px]">
       登入註冊
     </p>
     <span class="w-[120px] border-b-2 border-grayWhite sm:w-[300px]"></span>
@@ -142,8 +143,7 @@ const login = async () => {
               <div class="relative">
                 <input v-model="name" type="text" id="name" placeholder=" "
                   class="peer w-full px-4 py-3 border border-gray-400 rounded-md focus:outline-none" />
-                <label for="name" 
-                  class="absolute left-3 top-[-8px] text-xs bg-white px-1 text-gray-400 transition-all 
+                <label for="name" class="absolute left-3 top-[-8px] text-xs bg-white px-1 text-gray-400 transition-all 
                   peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm 
                   peer-focus:top-[-8px] peer-focus:text-xs
                   peer-[:not(:placeholder-shown)]:top-[-8px] peer-[:not(:placeholder-shown)]:text-xs">
@@ -156,8 +156,7 @@ const login = async () => {
               <div class="relative">
                 <input v-model="phone" type="tel" id="phone" placeholder=" "
                   class="peer w-full px-4 py-3 border border-gray-400 rounded-md focus:outline-none" />
-                <label for="phone" 
-                  class="absolute left-3 top-[-8px] text-xs bg-white px-1 text-gray-400 transition-all 
+                <label for="phone" class="absolute left-3 top-[-8px] text-xs bg-white px-1 text-gray-400 transition-all 
                   peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm 
                   peer-focus:top-[-8px] peer-focus:text-xs
                   peer-[:not(:placeholder-shown)]:top-[-8px] peer-[:not(:placeholder-shown)]:text-xs">
@@ -171,8 +170,7 @@ const login = async () => {
                 <div class="relative flex-1">
                   <input v-model="birthDate" type="date" id="birth-date" placeholder=" "
                     class="peer w-full px-4 py-3 border border-gray-400 rounded-md focus:outline-none" />
-                  <label for="birth-date" 
-                    class="absolute left-3 top-[-8px] text-xs bg-white px-1 text-gray-400 transition-all 
+                  <label for="birth-date" class="absolute left-3 top-[-8px] text-xs bg-white px-1 text-gray-400 transition-all 
                     peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm 
                     peer-focus:top-[-8px] peer-focus:text-xs
                     peer-[:not(:placeholder-shown)]:top-[-8px] peer-[:not(:placeholder-shown)]:text-xs">
@@ -184,8 +182,7 @@ const login = async () => {
                 <div class="relative flex-1 mt-4 sm:mt-0">
                   <input v-model="birthTime" type="time" id="birth-time" placeholder=" "
                     class="peer w-full px-4 py-3 border border-gray-400 rounded-md focus:outline-none" />
-                  <label for="birth-time" 
-                    class="absolute left-3 top-[-8px] text-xs bg-white px-1 text-gray-400 transition-all 
+                  <label for="birth-time" class="absolute left-3 top-[-8px] text-xs bg-white px-1 text-gray-400 transition-all 
                     peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm 
                     peer-focus:top-[-8px] peer-focus:text-xs
                     peer-[:not(:placeholder-shown)]:top-[-8px] peer-[:not(:placeholder-shown)]:text-xs">
@@ -199,8 +196,7 @@ const login = async () => {
               <div class="relative">
                 <input v-model="birthCity" type="text" id="birth-city" placeholder=" "
                   class="peer w-full px-4 py-3 border border-gray-400 rounded-md focus:outline-none" />
-                <label for="birth-city" 
-                  class="absolute left-3 top-[-8px] text-xs bg-white px-1 text-gray-400 transition-all 
+                <label for="birth-city" class="absolute left-3 top-[-8px] text-xs bg-white px-1 text-gray-400 transition-all 
                   peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm 
                   peer-focus:top-[-8px] peer-focus:text-xs
                   peer-[:not(:placeholder-shown)]:top-[-8px] peer-[:not(:placeholder-shown)]:text-xs">
@@ -213,8 +209,7 @@ const login = async () => {
               <div class="relative">
                 <input v-model="address" type="text" id="address" placeholder=" "
                   class="peer w-full px-4 py-3 border border-gray-400 rounded-md focus:outline-none" />
-                <label for="address" 
-                  class="absolute left-3 top-[-8px] text-xs bg-white px-1 text-gray-400 transition-all 
+                <label for="address" class="absolute left-3 top-[-8px] text-xs bg-white px-1 text-gray-400 transition-all 
                   peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm 
                   peer-focus:top-[-8px] peer-focus:text-xs
                   peer-[:not(:placeholder-shown)]:top-[-8px] peer-[:not(:placeholder-shown)]:text-xs">
@@ -244,13 +239,12 @@ const login = async () => {
 
               <!-- 同意條款 -->
               <div class="flex items-start space-x-2 mt-4">
-                <input v-model="termsAccepted" type="checkbox" id="terms" class="w-5 h-5 text-[#1F9C95]  border-gray-400 rounded mt-1">
+                <input v-model="termsAccepted" type="checkbox" id="terms"
+                  class="w-5 h-5 text-[#1F9C95]  border-gray-400 rounded mt-1">
                 <label for="terms" class="text-gray-600 text-base">
                   同意本站的
-                  <a href="/wushu/Policy" target="_blank"
-                    class="text-blue-500 hover:underline">付款退款條款</a> 與
-                  <a href="/wushu/Privacy" target="_blank"
-                    class="text-blue-500 hover:underline">隱私權政策</a>。
+                  <a href="/wushu/Policy" target="_blank" class="text-blue-500 hover:underline">付款退款條款</a> 與
+                  <a href="/wushu/Privacy" target="_blank" class="text-blue-500 hover:underline">隱私權政策</a>。
                 </label>
               </div>
 
@@ -299,6 +293,7 @@ const login = async () => {
                 登入會員
               </button>
             </form>
+
           </div>
         </div>
       </div>
