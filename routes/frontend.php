@@ -12,9 +12,6 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-
-
-
 Route::prefix('wushu')->group(function () {
     // 首頁
     Route::get('/', [WushuController::class, 'home'])->name('wushu.home');
@@ -29,29 +26,39 @@ Route::prefix('wushu')->group(function () {
     Route::get('/Policy', function () {
         return Inertia::render('frontend/Policy');
     });
+    
     // 聯絡我們頁
     Route::get('/ContactUs', function () {
         return Inertia::render('frontend/ContactUs');
     });
+    
     // 🔺新增頁 TidingCrete
     Route::get('/ContactUs',[WushuController::class,'contact'])->name('wushu.contact');
     
     // 🔺新增資料 新增要帶值的方法
     Route::post('/ContactUs',[WushuController::class,'store'])->name('wushu.store');
 
-
     // 登入註冊頁
     Route::get('/LoginSignup', function () {
         return Inertia::render('frontend/LoginSignup');
     });
+
+    // 登入路由
+    Route::post('/login', [WushuController::class, 'login'])->name('wushu.login');
+
+    // 註冊路由
+    Route::post('/register', [WushuController::class, 'register'])->name('wushu.register');
+
     // 購物車
     Route::get('/Cart', function () {
         return Inertia::render('frontend/Cart');
     });
+    
     // 隱私權政策
     Route::get('/Privacy', function () {
         return Inertia::render('frontend/Privacy');
     });
+    
     // 會員中心頁
     Route::get('/MemberCenter', function () {
         return Inertia::render('frontend/MemberCenter');
