@@ -58,6 +58,10 @@ const login = () => {
 
   if (loginEmail.value === savedUser.email && loginPassword.value === savedUser.password) {
     alert('登入成功');
+
+    // ✅ 儲存登入者 email，供 Header 使用
+    localStorage.setItem('loggedInEmail', savedUser.email);
+
     window.location.href = 'http://127.0.0.1:8000/wushu/MemberCenter';
   } else {
     alert('帳號或密碼錯誤');
@@ -267,15 +271,20 @@ body {
   font-family: 'Poppins', sans-serif;
 }
 
+/* Original rule that makes date invisible when not focused */
 input[type="date"]::-webkit-datetime-edit {
   color: transparent;
 }
 
+/* Show date when focused */
 input[type="date"]:focus::-webkit-datetime-edit {
   color: black;
-  /* 聚焦時再顯示正常文字 */
 }
-</style>
+
+/* NEW RULE: Show date when input has a value */
+input[type="date"]:not(:placeholder-shown)::-webkit-datetime-edit {
+  color: black;
+}</style>
 
 <!-- External Links (place in index.html or main layout) -->
 <!--
