@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import axios from 'axios'; // Make sure axios is installed
 
 const tab = ref('signup');
 const name = ref('');
@@ -11,60 +12,91 @@ const address = ref('');
 const email = ref('');
 const password = ref('');
 const termsAccepted = ref(false);
+const errors = ref({}); // For validation errors
 
 // 登入表單的變數
 const loginEmail = ref('');
 const loginPassword = ref('');
+const loginError = ref('');
 
 // 按鈕樣式
 const activeTabClass = 'bg-[#1F9C95] text-white border border-[#1F9C95]';
 const inactiveTabClass = 'bg-white text-[#1F9C95] border border-[#1F9C95]';
 
-// 註冊功能（儲存到 localStorage）
-const register = () => {
+// CSRF Token setup
+const getCsrfToken = () => {
+  const tokenElement = document.querySelector('meta[name="csrf-token"]');
+  return tokenElement ? tokenElement.getAttribute('content') : null;
+};
+
+// Configure axios to include CSRF token
+axios.defaults.headers.common['X-CSRF-TOKEN'] = getCsrfToken();
+axios.defaults.withCredentials = true; // Important for maintaining session
+
+// 註冊功能（發送到後端）
+const register = async () => {
   if (!termsAccepted.value) {
     alert('請同意條款與隱私權政策');
     return;
   }
 
-  const userData = {
-    name: name.value,
-    phone: phone.value,
-    birthDate: birthDate.value,
-    birthTime: birthTime.value,
-    birthCity: birthCity.value,
-    address: address.value,
-    email: email.value,
-    password: password.value,
-  };
+  try {
+    // 創建用戶資料對象
+    const userData = {
+      name: name.value,
+      phone: phone.value,
+      birth_date: birthDate.value,
+      birth_time: birthTime.value,
+      birth_city: birthCity.value,
+      address: address.value,
+      email: email.value,
+      password: password.value,
+    };
 
-  localStorage.setItem('wushuUser', JSON.stringify(userData));
-  alert('註冊成功！請前往登入');
-  tab.value = 'login';
-
-  // 自動填入登入欄位
-  loginEmail.value = email.value;
-  loginPassword.value = password.value;
+    // 發送POST請求到後端註冊API
+    const response = await axios.post('/api/register', userData);
+    
+    if (response.data.success) {
+      alert('註冊成功！請前往登入');
+      tab.value = 'login';
+      
+      // 自動填入登入欄位
+      loginEmail.value = email.value;
+      loginPassword.value = '';
+      errors.value = {};
+    }
+  } catch (error) {
+    if (error.response && error.response.data.errors) {
+      errors.value = error.response.data.errors;
+    } else {
+      alert('註冊時發生錯誤，請稍後再試');
+      console.error('註冊錯誤:', error);
+    }
+  }
 };
 
-// 登入功能（從 localStorage 讀資料比對）
-const login = () => {
-  const savedUser = JSON.parse(localStorage.getItem('wushuUser'));
-
-  if (!savedUser) {
-    alert('尚未註冊帳號');
-    return;
-  }
-
-  if (loginEmail.value === savedUser.email && loginPassword.value === savedUser.password) {
-    alert('登入成功');
-
-    // ✅ 儲存登入者 email，供 Header 使用
-    localStorage.setItem('loggedInEmail', savedUser.email);
-
-    window.location.href = 'http://127.0.0.1:8000/wushu/MemberCenter';
-  } else {
-    alert('帳號或密碼錯誤');
+// 登入功能（從後端驗證）
+const login = async () => {
+  try {
+    const response = await axios.post('/api/login', {
+      email: loginEmail.value,
+      password: loginPassword.value
+    });
+    
+    if (response.data.success) {
+      alert('登入成功');
+      // 重定向到會員中心
+      window.location.href = '/wushu/MemberCenter';
+    } else {
+      loginError.value = '登入失敗';
+    }
+  } catch (error) {
+    if (error.response && error.response.status === 422) {
+      loginError.value = '帳號或密碼錯誤';
+    } else {
+      loginError.value = '登入時發生錯誤，請稍後再試';
+      console.error('登入錯誤:', error);
+    }
   }
 };
 </script>
@@ -117,6 +149,7 @@ const login = () => {
                   peer-[:not(:placeholder-shown)]:top-[-8px] peer-[:not(:placeholder-shown)]:text-xs">
                   姓名
                 </label>
+                <p v-if="errors.name" class="text-red-500 text-sm mt-1">{{ errors.name[0] }}</p>
               </div>
 
               <!-- 手機號碼 -->
@@ -130,6 +163,7 @@ const login = () => {
                   peer-[:not(:placeholder-shown)]:top-[-8px] peer-[:not(:placeholder-shown)]:text-xs">
                   手機號碼
                 </label>
+                <p v-if="errors.phone" class="text-red-500 text-sm mt-1">{{ errors.phone[0] }}</p>
               </div>
 
               <!-- 出生日期和出生時間 -->
@@ -144,6 +178,7 @@ const login = () => {
                     peer-[:not(:placeholder-shown)]:top-[-8px] peer-[:not(:placeholder-shown)]:text-xs">
                     出生日期
                   </label>
+                  <p v-if="errors.birth_date" class="text-red-500 text-sm mt-1">{{ errors.birth_date[0] }}</p>
                 </div>
 
                 <div class="relative flex-1 mt-4 sm:mt-0">
@@ -156,6 +191,7 @@ const login = () => {
                     peer-[:not(:placeholder-shown)]:top-[-8px] peer-[:not(:placeholder-shown)]:text-xs">
                     出生時間
                   </label>
+                  <p v-if="errors.birth_time" class="text-red-500 text-sm mt-1">{{ errors.birth_time[0] }}</p>
                 </div>
               </div>
 
@@ -170,6 +206,7 @@ const login = () => {
                   peer-[:not(:placeholder-shown)]:top-[-8px] peer-[:not(:placeholder-shown)]:text-xs">
                   出生城市
                 </label>
+                <p v-if="errors.birth_city" class="text-red-500 text-sm mt-1">{{ errors.birth_city[0] }}</p>
               </div>
 
               <!-- 地址 -->
@@ -183,6 +220,7 @@ const login = () => {
                   peer-[:not(:placeholder-shown)]:top-[-8px] peer-[:not(:placeholder-shown)]:text-xs">
                   地址
                 </label>
+                <p v-if="errors.address" class="text-red-500 text-sm mt-1">{{ errors.address[0] }}</p>
               </div>
 
               <h2 class="text-3xl font-bold mt-8 mb-6">電子郵件</h2>
@@ -192,6 +230,7 @@ const login = () => {
               <div class="flex flex-col">
                 <input v-model="email" type="email" placeholder="請輸入電子郵件"
                   class="w-full px-4 py-3 border rounded-md focus:outline-none" />
+                <p v-if="errors.email" class="text-red-500 text-sm mt-1">{{ errors.email[0] }}</p>
               </div>
 
               <h2 class="text-3xl font-bold mt-8 mb-6">密碼</h2>
@@ -200,6 +239,7 @@ const login = () => {
               <div class="flex flex-col">
                 <input v-model="password" type="password" placeholder="密碼/至少6碼/英數混和"
                   class="w-full px-4 py-3 border rounded-md focus:outline-none" />
+                <p v-if="errors.password" class="text-red-500 text-sm mt-1">{{ errors.password[0] }}</p>
               </div>
 
               <!-- 同意條款 -->
@@ -207,9 +247,9 @@ const login = () => {
                 <input v-model="termsAccepted" type="checkbox" id="terms" class="w-5 h-5 text-[#1F9C95]  border-gray-400 rounded mt-1">
                 <label for="terms" class="text-gray-600 text-base">
                   同意本站的
-                  <a href="http://127.0.0.1:8001/wushu/Policy" target="_blank"
+                  <a href="/wushu/Policy" target="_blank"
                     class="text-blue-500 hover:underline">付款退款條款</a> 與
-                  <a href="http://127.0.0.1:8001/wushu/Privacy" target="_blank"
+                  <a href="/wushu/Privacy" target="_blank"
                     class="text-blue-500 hover:underline">隱私權政策</a>。
                 </label>
               </div>
@@ -243,6 +283,11 @@ const login = () => {
                 </div>
               </div>
 
+              <!-- 登入錯誤訊息 -->
+              <div v-if="loginError" class="text-red-500">
+                {{ loginError }}
+              </div>
+
               <!-- 忘記密碼 -->
               <div class="flex justify-start">
                 <a href="#" class="text-gray-400 text-lg hover:underline">忘記密碼？</a>
@@ -261,6 +306,7 @@ const login = () => {
   </div>
   <Footer />
 </template>
+
 <!-- Input component with icon (reusable) -->
 
 <!-- FontAwesome & Tailwind -->
@@ -284,7 +330,8 @@ input[type="date"]:focus::-webkit-datetime-edit {
 /* NEW RULE: Show date when input has a value */
 input[type="date"]:not(:placeholder-shown)::-webkit-datetime-edit {
   color: black;
-}</style>
+}
+</style>
 
 <!-- External Links (place in index.html or main layout) -->
 <!--
