@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Models\User;
 use Inertia\Inertia;
+use App\Models\Order;
 use App\Models\Course;
 use App\Models\Service;
 use App\Models\Category;
+use App\Models\UserInfo;
 use Illuminate\Http\Request;
 use App\Models\ContactRecord;
 use App\Http\Controllers\Controller;
@@ -19,7 +21,7 @@ class WushuController extends Controller
         // 取得所有課程類別與其關聯課程
         $categories = Category::with('courses')->get();
         $featuredCourses = Course::where('is_featured', true)->take(2)->get(); // 主打課程
-        
+
         // 將課程按類別分組
         $coursesByCategory = [];
         foreach ($categories as $category) {
@@ -88,8 +90,6 @@ class WushuController extends Controller
         return redirect(route('wushu.contact'));
     }
 
-    // 註冊登入
-    
 
 
 }
