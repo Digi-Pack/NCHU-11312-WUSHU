@@ -1,13 +1,24 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import Header from '../../components/Header.vue';
 import Footer from '../../components/Footer.vue';
 import CourseCard from '@/components/CourseCard.vue';
+const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
 
 const tab = ref('personalinfo') // 初始預設在個人資料
 
 const activeTopTabClass = 'bg-white border border-white';
 const inactiveTopTabClass = 'text-white border border-white';
+
+// 讀取已購買的商品
+const purchasedItems = ref([]);
+
+onMounted(() => {
+  const storedItems = localStorage.getItem('purchasedItems');
+  if (storedItems) {
+    purchasedItems.value = JSON.parse(storedItems);
+  }
+});
 
 const courses = ref([
   {
@@ -85,7 +96,9 @@ function formatPayment(method) {
 function formatStatus(status) {
   return status === 'paid' ? '收到款項：課程已解鎖' : '待客服確認款項';
 };
+import ProductCard from '@/components/ProductCard.vue';
 
+// 讀取已購買的商品
 </script>
 
 <template>
@@ -248,26 +261,25 @@ function formatStatus(status) {
 
       <!-- 我的課程區塊 -->
       <div v-else-if="tab === 'mycourse'" class="w-full py-8 px-4">
-        <div class="course-grid">
-          <div v-for="(course, index) in courses" :key="index" class="course-card">
-            <h3 class="text-xl font-bold mb-2 break-words">
-              {{ course.title }}
-            </h3>
-            <p class="text-base text-gray-700 leading-relaxed break-words mb-4">
-              {{ course.description }}
-            </p>
-            <div class="flex justify-between items-center">
-              <span class="px-3 py-1 text-sm rounded-full bg-purple-200 text-purple-800">
-                {{ course.category }}
-              </span>
-              <button class="bg-teal-600 text-white px-4 py-2 text-sm rounded hover:bg-teal-700 transition">
-                前往課程
-              </button>
-            </div>
-          </div>
+    <div class="course-grid">
+      <div v-for="(course, index) in purchasedItems" :key="index" class="course-card">
+        <h3 class="text-xl font-bold mb-2 break-words">
+          {{ course.title }}
+        </h3>
+        <p class="text-base text-gray-700 leading-relaxed break-words mb-4">
+          {{ course.description }}
+        </p>
+        <div class="flex justify-between items-center">
+          <span class="px-3 py-1 text-sm rounded-full bg-purple-200 text-purple-800">
+            {{ course.category }}
+          </span>
+          <button class="bg-teal-600 text-white px-4 py-2 text-sm rounded hover:bg-teal-700 transition">
+            前往課程
+          </button>
         </div>
       </div>
-
+    </div>
+  </div>
       <!-- 購買記錄 -->
       <div v-else-if="tab === 'purchaserecord'" class="w-full px-4 py-8 text-gray-800">
         <div class="max-w-3xl mx-auto border border-gray-400 rounded-md p-6">

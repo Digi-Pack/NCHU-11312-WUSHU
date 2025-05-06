@@ -74,6 +74,7 @@ onMounted(() => {
   }
 });
 
+
 // 計算總金額
 const totalAmount = computed(() => {
   // 服務的總金額
@@ -117,6 +118,8 @@ const deleteItem = () => {
 const cancelDelete = () => {
   showDeleteConfirmation.value = false; // 隱藏彈窗
 };
+
+
 </script>
 
 <template>
@@ -127,15 +130,15 @@ const cancelDelete = () => {
     <div v-if="step === 1" class="flex flex-col items-center">
       <header class="flex h-[234px] flex-col items-center sm:h-[400px] xl:h-[444px]">
         <p
-          class="pt-[116px] font-serif text-[32px]/[46px] font-semibold text-black sm:pt-[160px] sm:text-[52px]/[75px] xl:pt-[224px] xl:text-[64px]/[92px]"
-        >
+          class="pt-[116px] font-serif text-[32px]/[46px] font-semibold text-black sm:pt-[160px] sm:text-[52px]/[75px] xl:pt-[224px] xl:text-[64px]/[92px]">
           購物車
         </p>
         <span class="w-[100px] border-b-2 border-black sm:w-[150px]"></span>
       </header>
 
       <!-- 會員資料卡 -->
-      <section class="w-[343px] sm:mx-auto sm:mb-[60px] sm:w-full sm:max-w-[720px] sm:px-[24px] xl:max-w-[1020px] xl:px-0">
+      <section
+        class="w-[343px] sm:mx-auto sm:mb-[60px] sm:w-full sm:max-w-[720px] sm:px-[24px] xl:max-w-[1020px] xl:px-0">
         <div class="mb-10 px-[32px] py-[24px] text-[20px]/[26.6px] shadow-custom">
           <p class="pb-[12px]/[16px] pb-2 text-[20px] font-bold sm:text-[32px]/[42px]">會員資料</p>
           <hr class="" />
@@ -150,7 +153,8 @@ const cancelDelete = () => {
       <div class="flex w-full flex-col items-center px-[32px] pb-[76px] sm:mx-[216px] sm:px-[48px]">
         <!-- 服務 -->
         <div class="w-full mb-8 max-w-[311px] sm:max-w-[672px] xl:w-full xl:max-w-[1020px]">
-          <p class="mb-[24px] text-[20px]/[27px] font-bold text-blueGreen sm:text-[28px]/[37px] xl:text-[32px]/[43px]">服務</p>
+          <p class="mb-[24px] text-[20px]/[27px] font-bold text-blueGreen sm:text-[28px]/[37px] xl:text-[32px]/[43px]">
+            服務</p>
           <!-- 列表title -->
           <div class="hidden sm:block">
             <div class="flex justify-between px-[5px] text-[24px]/[32px] font-bold text-darkGray">
@@ -182,7 +186,8 @@ const cancelDelete = () => {
 
         <!-- 課程 -->
         <div class="w-full max-w-[311px] sm:max-w-[672px] xl:w-full xl:max-w-[1020px]">
-          <p class="mb-[24px] text-[20px]/[27px] font-bold text-blueGreen sm:text-[28px]/[37px] xl:text-[32px]/[43px]">課程</p>
+          <p class="mb-[24px] text-[20px]/[27px] font-bold text-blueGreen sm:text-[28px]/[37px] xl:text-[32px]/[43px]">
+            課程</p>
           <!-- 列表title -->
           <div class="hidden sm:block">
             <div class="flex justify-between px-[5px] text-[24px]/[32px] font-bold text-darkGray">
@@ -212,8 +217,7 @@ const cancelDelete = () => {
         </div>
         <!-- 總計 -->
         <div
-          class="flex w-full max-w-[311px] flex-wrap justify-between px-[10px] py-[16px] text-[16px]/[21px] font-bold sm:max-w-[672px] sm:text-[24px]/[32px] xl:max-w-[1020px] xl:pl-[5px] xl:pr-[110px]"
-        >
+          class="flex w-full max-w-[311px] flex-wrap justify-between px-[10px] py-[16px] text-[16px]/[21px] font-bold sm:max-w-[672px] sm:text-[24px]/[32px] xl:max-w-[1020px] xl:pl-[5px] xl:pr-[110px]">
           <div class="text-darkGray">共計 {{ serviceItems.length + courseItems.length }} 項</div>
           <div>
             <span class="text-darkGray">合計</span>
@@ -224,16 +228,13 @@ const cancelDelete = () => {
       <!-- 按鈕區 -->
       <div class="sm:w-[100%] sm:max-w-[672px] sm:px-3 xl:max-w-[760px] xl:px-0">
         <div class="flex flex-wrap justify-center gap-4 sm:justify-between">
-          <button
-            @click="goList"
-            class="h-[44px] w-[147.5px] rounded-sm border border-blueGreen text-[16px]/[28px] text-blueGreen hover:bg-blueGreen hover:text-white sm:mr-0 sm:h-[56px] sm:w-[276px] sm:text-[24px]/[40px] xl:w-[320px]"
-          >
+          <button @click="goList"
+            class="h-[44px] w-[147.5px] rounded-sm border border-blueGreen text-[16px]/[28px] text-blueGreen hover:bg-blueGreen hover:text-white sm:mr-0 sm:h-[56px] sm:w-[276px] sm:text-[24px]/[40px] xl:w-[320px]">
             繼續看課程
           </button>
           <button
             class="h-[44px] w-[147.5px] rounded-sm border border-blueGreen text-[16px]/[28px] text-blueGreen hover:bg-blueGreen hover:text-white sm:h-[56px] sm:w-[276px] sm:text-[24px]/[40px] xl:w-[320px]"
-            @click="nextStep"
-          >
+            @click="nextStep">
             匯款去
           </button>
         </div>
@@ -254,8 +255,7 @@ const cancelDelete = () => {
     <div v-else-if="step === 2" class="flex flex-col items-center">
       <header class="flex h-[234px] w-full flex-col items-center sm:h-[400px] xl:h-[444px]">
         <p
-          class="pt-[116px] font-serif text-[32px]/[46px] font-semibold text-black sm:pt-[160px] sm:text-[52px]/[75px] xl:pt-[224px] xl:text-[64px]/[92px]"
-        >
+          class="pt-[116px] font-serif text-[32px]/[46px] font-semibold text-black sm:pt-[160px] sm:text-[52px]/[75px] xl:pt-[224px] xl:text-[64px]/[92px]">
           付款說明
         </p>
         <span class="w-[100px] border-b-2 border-black sm:w-[150px]"></span>
@@ -265,7 +265,8 @@ const cancelDelete = () => {
         <div class="mb-[60px] text-[20px]/[27px] sm:px-[48px] sm:pt-[127px] xl:w-[1256px] xl:px-0 xl:pt-0">
           <p class="mb-[24px] font-bold text-blueGreen sm:text-[32px]/[42px]">付款說明</p>
           <p class="mb-[30px] sm:text-[24px]/[32px] sm:font-bold">我們唯一的付款方式為「轉帳」，恕不提供信用卡的選項。</p>
-          <div class="font-bold sm:text-[28px]/[38px] sm:font-normal xl:bg-white xl:px-[84px] xl:py-[24px] xl:text-[24px]/[40px] xl:shadow-custom">
+          <div
+            class="font-bold sm:text-[28px]/[38px] sm:font-normal xl:bg-white xl:px-[84px] xl:py-[24px] xl:text-[24px]/[40px] xl:shadow-custom">
             您須匯款的金額為<span class="text-blueGreen xl:text-[32px]/[42px]">NT$ {{ totalAmount.toLocaleString() }} </span>
             <br />
             請匯款至台新銀行812（內湖分行0481）
@@ -282,60 +283,32 @@ const cancelDelete = () => {
           <p class="mb-[24px] text-[20px]/[27px] font-bold text-blueGreen sm:text-[32px]/[42px]">輸入轉帳資料</p>
           <!-- 匯款日期 -->
           <div class="relative">
-            <label
-              for="date"
-              :class="['absolute left-0 top-[50%] ml-[16px] -translate-y-[80%] bg-white text-[18px] text-darkGray', paidDate ? 'hidden' : 'block']"
-              >匯款日期</label
-            >
-            <input
-              type="date"
-              id="date"
-              name="paid_date"
-              v-model="paidDate"
+            <label for="date"
+              :class="['absolute left-0 top-[50%] ml-[16px] -translate-y-[80%] bg-white text-[18px] text-darkGray', paidDate ? 'hidden' : 'block']">匯款日期</label>
+            <input type="date" id="date" name="paid_date" v-model="paidDate"
               class="mb-4 h-[48px] w-[100%] rounded-sm border border-mediumGray bg-white p-4 text-[18px]/[24px] font-normal text-black outline-none sm:w-[300px]"
-              required
-            />
+              required />
           </div>
           <!-- 匯款金額 -->
           <div class="relative">
-            <input
-              id="price"
-              type="number"
-              name="paid_price"
-              v-model="paidPrice"
-              min="1"
+            <input id="price" type="number" name="paid_price" v-model="paidPrice" min="1"
               class="mb-4 h-[48px] w-[100%] rounded-sm border border-mediumGray bg-white p-4 text-[18px]/[24px] font-normal text-black outline-none sm:w-[300px]"
-              required
-            />
-            <label
-              for="price"
-              :class="[
-                'absolute left-0 text-darkGray',
-                paidPrice ? 'ml-4 -translate-y-2 bg-white p-0 text-[12px]/[16px] font-light' : 'py-[11.5px] pl-[18px] text-[18px] font-normal',
-              ]"
-              >匯款金額</label
-            >
+              required />
+            <label for="price" :class="[
+              'absolute left-0 text-darkGray',
+              paidPrice ? 'ml-4 -translate-y-2 bg-white p-0 text-[12px]/[16px] font-light' : 'py-[11.5px] pl-[18px] text-[18px] font-normal',
+            ]">匯款金額</label>
           </div>
           <!-- 匯款帳號後五碼  -->
           <div class="relative">
-            <input
-              id="accountNumber"
-              type="text"
-              name="paid_account"
-              v-model="accountNumber"
-              minlength="5"
+            <input id="accountNumber" type="text" name="paid_account" v-model="accountNumber" minlength="5"
               maxlength="5"
               class="mb-4 h-[48px] w-[100%] rounded-sm border border-mediumGray bg-white p-4 text-[18px]/[24px] font-normal text-black outline-none sm:w-[300px]"
-              required
-            />
-            <label
-              for="accountNumber"
-              :class="[
-                'absolute left-0 text-darkGray',
-                accountNumber ? 'ml-4 -translate-y-2 bg-white p-0 text-[12px]/[16px] font-light' : 'py-[11.5px] pl-[18px] text-[18px] font-normal',
-              ]"
-              >匯款帳號後五碼</label
-            >
+              required />
+            <label for="accountNumber" :class="[
+              'absolute left-0 text-darkGray',
+              accountNumber ? 'ml-4 -translate-y-2 bg-white p-0 text-[12px]/[16px] font-light' : 'py-[11.5px] pl-[18px] text-[18px] font-normal',
+            ]">匯款帳號後五碼</label>
           </div>
         </div>
       </div>
@@ -343,15 +316,12 @@ const cancelDelete = () => {
       <!-- 按鈕區 -->
       <div class="sm:w-[100%] sm:px-[48px] xl:max-w-[760px] xl:px-0">
         <div class="box-border flex flex-wrap flex-nowrap justify-center gap-4 xl:justify-between">
-          <button
-            @click="prevStep"
-            class="h-[44px] w-[147.5px] rounded-sm border border-blueGreen text-[16px]/[28px] text-blueGreen hover:bg-blueGreen hover:text-white sm:mr-[120px] sm:h-[56px] sm:w-[320px] sm:text-[24px]/[40px]"
-          >
+          <button @click="prevStep"
+            class="h-[44px] w-[147.5px] rounded-sm border border-blueGreen text-[16px]/[28px] text-blueGreen hover:bg-blueGreen hover:text-white sm:mr-[120px] sm:h-[56px] sm:w-[320px] sm:text-[24px]/[40px]">
             返回購物車
           </button>
           <button
-            class="h-[44px] w-[147.5px] rounded-sm border border-blueGreen text-[16px]/[28px] text-blueGreen hover:bg-blueGreen hover:text-white sm:h-[56px] sm:w-[320px] sm:text-[24px]/[40px]"
-          >
+            class="h-[44px] w-[147.5px] rounded-sm border border-blueGreen text-[16px]/[28px] text-blueGreen hover:bg-blueGreen hover:text-white sm:h-[56px] sm:w-[320px] sm:text-[24px]/[40px]">
             送出匯款資料
           </button>
         </div>

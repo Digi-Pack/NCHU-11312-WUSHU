@@ -1,7 +1,7 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
-const tab = ref('signup');  // 初始選擇註冊 Tab
+const tab = ref('signup');
 const name = ref('');
 const phone = ref('');
 const birthDate = ref('');
@@ -16,73 +16,51 @@ const termsAccepted = ref(false);
 const loginEmail = ref('');
 const loginPassword = ref('');
 
-// 選到的按鈕樣式
+// 按鈕樣式
 const activeTabClass = 'bg-[#1F9C95] text-white border border-[#1F9C95]';
-// 沒選到的按鈕樣式
 const inactiveTabClass = 'bg-white text-[#1F9C95] border border-[#1F9C95]';
 
-// 註冊請求
-const register = async () => {
+// 註冊功能（儲存到 localStorage）
+const register = () => {
   if (!termsAccepted.value) {
     alert('請同意條款與隱私權政策');
     return;
   }
 
-  try {
-    const response = await fetch('/wushu/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: name.value,
-        phone: phone.value,
-        birth_date: birthDate.value,
-        birth_time: birthTime.value,
-        birth_city: birthCity.value,
-        address: address.value,
-        email: email.value,
-        password: password.value,
-      }),
-    });
+  const userData = {
+    name: name.value,
+    phone: phone.value,
+    birthDate: birthDate.value,
+    birthTime: birthTime.value,
+    birthCity: birthCity.value,
+    address: address.value,
+    email: email.value,
+    password: password.value,
+  };
 
-    if (response.ok) {
-      // 註冊成功後跳轉到登入頁面
-      window.location.href = '/wushu/LoginSignup';
-    } else {
-      const errorData = await response.json();
-      alert(errorData.message || '註冊失敗，請稍後再試');
-    }
-  } catch (error) {
-    console.error('註冊請求發生錯誤', error);
-    alert('註冊請求發生錯誤');
-  }
+  localStorage.setItem('wushuUser', JSON.stringify(userData));
+  alert('註冊成功！請前往登入');
+  tab.value = 'login';
+
+  // 自動填入登入欄位
+  loginEmail.value = email.value;
+  loginPassword.value = password.value;
 };
 
-// 登入請求
-const login = async () => {
-  try {
-    const response = await fetch('/wushu/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: loginEmail.value,
-        password: loginPassword.value,
-      }),
-    });
+// 登入功能（從 localStorage 讀資料比對）
+const login = () => {
+  const savedUser = JSON.parse(localStorage.getItem('wushuUser'));
 
-    if (response.ok) {
-      // 登入成功，重定向
-      window.location.href = '/wushu/member-center';
-    } else {
-      const errorData = await response.json();
-      alert(errorData.message || '登入失敗，請檢查帳號密碼');
-    }
-  } catch (error) {
-    console.error('登入請求發生錯誤', error);
-    alert('登入請求發生錯誤');
+  if (!savedUser) {
+    alert('尚未註冊帳號');
+    return;
+  }
+
+  if (loginEmail.value === savedUser.email && loginPassword.value === savedUser.password) {
+    alert('登入成功');
+    window.location.href = 'http://127.0.0.1:8000/wushu/MemberCenter';
+  } else {
+    alert('帳號或密碼錯誤');
   }
 };
 </script>
@@ -128,7 +106,11 @@ const login = async () => {
               <div class="relative">
                 <input v-model="name" type="text" id="name" placeholder=" "
                   class="peer w-full px-4 py-3 border border-gray-400 rounded-md focus:outline-none" />
-                <label for="name" class="absolute left-3 top-3 text-gray-400 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-focus:top-[-8px] peer-focus:text-xs bg-white px-1">
+                <label for="name" 
+                  class="absolute left-3 top-[-8px] text-xs bg-white px-1 text-gray-400 transition-all 
+                  peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm 
+                  peer-focus:top-[-8px] peer-focus:text-xs
+                  peer-[:not(:placeholder-shown)]:top-[-8px] peer-[:not(:placeholder-shown)]:text-xs">
                   姓名
                 </label>
               </div>
@@ -137,7 +119,11 @@ const login = async () => {
               <div class="relative">
                 <input v-model="phone" type="tel" id="phone" placeholder=" "
                   class="peer w-full px-4 py-3 border border-gray-400 rounded-md focus:outline-none" />
-                <label for="phone" class="absolute left-3 top-3 text-gray-400 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-focus:top-[-8px] peer-focus:text-xs bg-white px-1">
+                <label for="phone" 
+                  class="absolute left-3 top-[-8px] text-xs bg-white px-1 text-gray-400 transition-all 
+                  peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm 
+                  peer-focus:top-[-8px] peer-focus:text-xs
+                  peer-[:not(:placeholder-shown)]:top-[-8px] peer-[:not(:placeholder-shown)]:text-xs">
                   手機號碼
                 </label>
               </div>
@@ -147,7 +133,11 @@ const login = async () => {
                 <div class="relative flex-1">
                   <input v-model="birthDate" type="date" id="birth-date" placeholder=" "
                     class="peer w-full px-4 py-3 border border-gray-400 rounded-md focus:outline-none" />
-                  <label for="birth-date" class="absolute left-3 top-3 text-gray-400 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-focus:top-[-8px] peer-focus:text-xs bg-white px-1">
+                  <label for="birth-date" 
+                    class="absolute left-3 top-[-8px] text-xs bg-white px-1 text-gray-400 transition-all 
+                    peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm 
+                    peer-focus:top-[-8px] peer-focus:text-xs
+                    peer-[:not(:placeholder-shown)]:top-[-8px] peer-[:not(:placeholder-shown)]:text-xs">
                     出生日期
                   </label>
                 </div>
@@ -155,7 +145,11 @@ const login = async () => {
                 <div class="relative flex-1 mt-4 sm:mt-0">
                   <input v-model="birthTime" type="time" id="birth-time" placeholder=" "
                     class="peer w-full px-4 py-3 border border-gray-400 rounded-md focus:outline-none" />
-                  <label for="birth-time" class="absolute left-3 top-3 text-gray-400 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-focus:top-[-8px] peer-focus:text-xs bg-white px-1">
+                  <label for="birth-time" 
+                    class="absolute left-3 top-[-8px] text-xs bg-white px-1 text-gray-400 transition-all 
+                    peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm 
+                    peer-focus:top-[-8px] peer-focus:text-xs
+                    peer-[:not(:placeholder-shown)]:top-[-8px] peer-[:not(:placeholder-shown)]:text-xs">
                     出生時間
                   </label>
                 </div>
@@ -165,7 +159,11 @@ const login = async () => {
               <div class="relative">
                 <input v-model="birthCity" type="text" id="birth-city" placeholder=" "
                   class="peer w-full px-4 py-3 border border-gray-400 rounded-md focus:outline-none" />
-                <label for="birth-city" class="absolute left-3 top-3 text-gray-400 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-focus:top-[-8px] peer-focus:text-xs bg-white px-1">
+                <label for="birth-city" 
+                  class="absolute left-3 top-[-8px] text-xs bg-white px-1 text-gray-400 transition-all 
+                  peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm 
+                  peer-focus:top-[-8px] peer-focus:text-xs
+                  peer-[:not(:placeholder-shown)]:top-[-8px] peer-[:not(:placeholder-shown)]:text-xs">
                   出生城市
                 </label>
               </div>
@@ -174,7 +172,11 @@ const login = async () => {
               <div class="relative">
                 <input v-model="address" type="text" id="address" placeholder=" "
                   class="peer w-full px-4 py-3 border border-gray-400 rounded-md focus:outline-none" />
-                <label for="address" class="absolute left-3 top-3 text-gray-400 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-focus:top-[-8px] peer-focus:text-xs bg-white px-1">
+                <label for="address" 
+                  class="absolute left-3 top-[-8px] text-xs bg-white px-1 text-gray-400 transition-all 
+                  peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm 
+                  peer-focus:top-[-8px] peer-focus:text-xs
+                  peer-[:not(:placeholder-shown)]:top-[-8px] peer-[:not(:placeholder-shown)]:text-xs">
                   地址
                 </label>
               </div>
@@ -255,7 +257,6 @@ const login = async () => {
   </div>
   <Footer />
 </template>
-
 <!-- Input component with icon (reusable) -->
 
 <!-- FontAwesome & Tailwind -->
