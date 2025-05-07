@@ -2,12 +2,19 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Order;
+use App\Models\Course;
+use App\Models\Service;
+use App\Models\OrderItem;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Traits\HandlesTableFilters;
 
+// 購物車
+use Illuminate\Support\Facades\DB;
+use App\Traits\HandlesTableFilters;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 
 class OrderController extends Controller
 {
@@ -58,23 +65,105 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         $data = $request->validate([
-            'remittance_date' => 'nullable|date',
-            'remittance_amount' => 'nullable|numeric',
-            'remittance_last5' => 'nullable|string|max:5',
-            'status' => 'required|in:paid,unpaid,cancelled',
+            'status' => 'required|integer',
             'course_permissions' => 'array',
+            'course_permissions.*' => 'boolean',
         ]);
 
         $order->update([
-            'remittance_date' => $data['remittance_date'],
-            'remittance_amount' => $data['remittance_amount'],
-            'remittance_last5' => $data['remittance_last5'],
             'status' => $data['status'],
         ]);
 
-        // 更新課程權限邏輯 (視你的資料表設計可能會用 pivot table 或其他方式)
-        // 例如: OrderItem::where('order_id', $order->id)->each(...)
+        // 更新每筆課程權限
+        foreach ($data['course_permissions'] as $itemId => $isAccessible) {
+            DB::table('order_items')
+                ->where('id', $itemId)
+                ->where('order_id', $order->id)
+                ->update(['is_accessible' => $isAccessible]);
+        }
 
-        return redirect()->route('admin.order.list')->with('success', '訂單已更新');
+        return redirect()->back()->with('success', '訂單已成功更新！');
+    }
+
+
+
+    /////////////////////////////////////////////
+    // 購物車
+    public function store(Request $request)
+    {
+        DB::beginTransaction(); // 	開始一個資料庫交易
+
+        try {
+            // 1. 取得使用者資料並建立使用者（或查詢現有的）
+            $userData = $request->input('user');
+            $user = User::firstOrCreate(
+                ['email' => $userData['email']],
+                ['name' => $userData['name'], 'phone' => $userData['phone']]
+            );
+
+            // 2. 取得匯款資訊與商品項目
+            $remittance = $request->input('remittance');
+            $items = $request->input('items');
+
+            // 3. 計算總金額
+            $totalAmount = collect($items)->sum('price_at_order_time');
+
+            // 4. 建立訂單
+            $order = Order::create([
+                'user_id' => $user->id,
+                'total_amount' => $totalAmount,
+                'status' => 0, // 初始狀態可改成你想要的
+                'remittance_date' => $remittance['remittance_date'],
+                'remittance_amount' => $remittance['remittance_amount'],
+                'remittance_account_last5' => $remittance['remittance_account_last5'],
+            ]);
+
+            // 5. 處理訂單項目
+            foreach ($items as $item) {
+
+                $modelClass = $item['product_type'];
+
+                if (!class_exists($modelClass)) {
+                    Log::error("Unknown product_type class: " . $modelClass);
+                    continue;
+                }
+
+                // 可選：確認產品是否存在
+                $product = $modelClass::find($item['product_id']);
+                if (!$product) {
+                    Log::warning("找不到產品 ID: {$item['product_id']} for class: {$modelClass}");
+                    continue;
+                }
+
+                // 根據模型名稱進行處理
+                // try {
+                // 這裡你不需要直接使用 `$model` 去創建 `OrderItem`
+                // 只需要確保創建 `OrderItem` 的字段是正確的
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_type' => $item['product_type'],
+                    'product_id' => $item['product_id'],
+                    'price_at_order_time' => $item['price_at_order_time'],
+                    'is_accessible' => false, // 預設未開通
+                ]);
+            }
+
+            DB::commit(); // 提交交易，資料正式寫入
+
+            // return response()->json([
+            //     'status' => 'success',  // 成功
+            //     'message' => '訂單已成功建立',
+            //     'order_id' => $order->id,
+            // ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack(); // 有錯 → 回滾交易，資料不會寫入
+
+            return response()->json([
+                'status' => 'error', // 失敗
+                'message' => '訂單建立失敗',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

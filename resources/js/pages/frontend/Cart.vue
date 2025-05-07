@@ -2,17 +2,16 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import ProductCard from '@/components/ProductCard.vue';
+import { usePage } from '@inertiajs/vue3';
 import { router } from '@inertiajs/vue3';
 import Header from '../../components/Header.vue';
 import Footer from '../../components/Footer.vue';
+import Swal from 'sweetalert2';
 
 import deleteIcon from '@/images/f-delete.png';
 
 import { useCartStore } from '@/stores/cart';
 const cartStore = useCartStore();
-// function remove(productId) {
-//   cartStore.removeFromCart(productId, productType);
-// }
 
 // 購物車步驟
 const step = ref(1);
@@ -24,38 +23,6 @@ const nextStep = () => {
 const prevStep = () => {
   step.value--;
 };
-
-// 付款input
-const paidPrice = ref(''); // 輸入時label往上方移動
-const accountNumber = ref(''); // 輸入時label往上方移動
-const paidDate = ref('');
-
-// 測試假資料-服務（可刪）
-const fakeServices = [
-  {
-    id: 1,
-    title: '服務服務服務服務服務服務',
-    price: '14,000',
-  },
-  {
-    id: 2,
-    title: '服務服務服務服務服務服務服務服務',
-    price: '36,200',
-  },
-];
-// 測試假資料-課程（可刪）
-const fakeCourses = [
-  {
-    id: 1,
-    title: '購買課程購買課程購買課程',
-    price: '14,000',
-  },
-  {
-    id: 2,
-    title: '購買課程購買課程購買課程購買課程',
-    price: '36,200',
-  },
-];
 
 // 繼續觀看課程
 const goList = () => {
@@ -71,6 +38,9 @@ onMounted(() => {
   const storedCart = localStorage.getItem('cart'); // 從 localStorage 讀取資料
   if (storedCart) {
     cartItems.value = JSON.parse(storedCart);
+
+    // ✅ Log 所有商品
+    console.log('購物車商品：', cartItems.value);
   }
 });
 
@@ -118,6 +88,9 @@ const deleteItem = () => {
 const cancelDelete = () => {
   showDeleteConfirmation.value = false; // 隱藏彈窗
 };
+
+// 獲取會員資料
+
 </script>
 
 <template>
@@ -141,9 +114,9 @@ const cancelDelete = () => {
           <p class="pb-[12px]/[16px] pb-2 text-[20px] font-bold sm:text-[32px]/[42px]">會員資料</p>
           <hr class="" />
           <div class="text-[12px] sm:text-[18px]/[24px]">
-            <p class="mt-[12px]">alyson</p>
-            <p class="my-[8px]">0909-123-234</p>
-            <p>He11oWorld@gmail.com</p>
+            <p class="mt-[12px]">{{ name }}</p>
+            <p class="my-[8px]">{{ phone }}</p>
+            <p>{{ email }}</p>
           </div>
         </div>
       </section>
@@ -165,10 +138,6 @@ const cancelDelete = () => {
           <!-- 列表 -->
           <hr class="border-0.5 border-mediumGray" />
           <div>
-            <!-- 引入ProductCard 並用測試假資料
-            <div v-for="item in fakeServices" :key="item.id">
-              <ProductCard :id="item.id" :title="item.title" :price="item.price" />
-            </div> -->
             <!-- 服務 -->
             <div v-for="(item, index) in serviceItems" :key="index">
               <ProductCard :id="index + 1" :title="item.name" :price="item.price.toLocaleString()">
@@ -280,32 +249,59 @@ const cancelDelete = () => {
           <p class="mb-[24px] text-[20px]/[27px] font-bold text-blueGreen sm:text-[32px]/[42px]">輸入轉帳資料</p>
           <!-- 匯款日期 -->
           <div class="relative">
-            <label for="date"
-              :class="['absolute left-0 top-[50%] ml-[16px] -translate-y-[80%] bg-white text-[18px] text-darkGray', paidDate ? 'hidden' : 'block']">匯款日期</label>
-            <input type="date" id="date" name="paid_date" v-model="paidDate"
+            <label
+              for="date"
+              :class="['absolute left-0 top-[50%] ml-[16px] -translate-y-[80%] bg-white text-[18px] text-darkGray', paidDate ? 'hidden' : 'block']"
+              >匯款日期</label
+            >
+            <input
+              type="date"
+              id="date"
+              name="paid_date"
+              v-model="paidDate"
               class="mb-4 h-[48px] w-[100%] rounded-sm border border-mediumGray bg-white p-4 text-[18px]/[24px] font-normal text-black outline-none sm:w-[300px]"
               required />
           </div>
           <!-- 匯款金額 -->
           <div class="relative">
-            <input id="price" type="number" name="paid_price" v-model="paidPrice" min="1"
+            <input
+              id="price"
+              type="number"
+              name="paid_price"
+              v-model="paidPrice"
+              min="1"
               class="mb-4 h-[48px] w-[100%] rounded-sm border border-mediumGray bg-white p-4 text-[18px]/[24px] font-normal text-black outline-none sm:w-[300px]"
-              required />
-            <label for="price" :class="[
-              'absolute left-0 text-darkGray',
-              paidPrice ? 'ml-4 -translate-y-2 bg-white p-0 text-[12px]/[16px] font-light' : 'py-[11.5px] pl-[18px] text-[18px] font-normal',
-            ]">匯款金額</label>
+              required
+            />
+            <label
+              for="price"
+              :class="[
+                'absolute left-0 text-darkGray',
+                paidPrice ? 'ml-4 -translate-y-2 bg-white p-0 text-[12px]/[16px] font-light' : 'py-[11.5px] pl-[18px] text-[18px] font-normal',
+              ]"
+              >匯款金額</label
+            >
           </div>
           <!-- 匯款帳號後五碼  -->
           <div class="relative">
-            <input id="accountNumber" type="text" name="paid_account" v-model="accountNumber" minlength="5"
+            <input
+              id="accountNumber"
+              type="text"
+              name="paid_account"
+              v-model="accountNumber"
+              minlength="5"
               maxlength="5"
               class="mb-4 h-[48px] w-[100%] rounded-sm border border-mediumGray bg-white p-4 text-[18px]/[24px] font-normal text-black outline-none sm:w-[300px]"
-              required />
-            <label for="accountNumber" :class="[
-              'absolute left-0 text-darkGray',
-              accountNumber ? 'ml-4 -translate-y-2 bg-white p-0 text-[12px]/[16px] font-light' : 'py-[11.5px] pl-[18px] text-[18px] font-normal',
-            ]">匯款帳號後五碼</label>
+              required
+            />
+            <label
+              for="accountNumber"
+              :class="[
+                'absolute left-0 text-darkGray',
+                accountNumber ? 'ml-4 -translate-y-2 bg-white p-0 text-[12px]/[16px] font-light' : 'py-[11.5px] pl-[18px] text-[18px] font-normal',
+              ]"
+              >匯款帳號後五碼</label
+            >
           </div>
         </div>
       </div>
@@ -318,18 +314,32 @@ const cancelDelete = () => {
             返回購物車
           </button>
           <button
-            class="h-[44px] w-[147.5px] rounded-sm border border-blueGreen text-[16px]/[28px] text-blueGreen hover:bg-blueGreen hover:text-white sm:h-[56px] sm:w-[320px] sm:text-[24px]/[40px]">
+            class="h-[44px] w-[147.5px] rounded-sm border border-blueGreen text-[16px]/[28px] text-blueGreen hover:bg-blueGreen hover:text-white sm:h-[56px] sm:w-[320px] sm:text-[24px]/[40px]"
+          >
             送出匯款資料
           </button>
         </div>
       </div>
     </div>
-
-    <!-- <div v-else-if="step === 3">
-      訂單完成畫面
-    </div> -->
-
-    <!-- 控制按鈕 -->
   </div>
   <Footer />
 </template>
+
+<style>
+.my-confirm-btn {
+  background-color: #1f9c95;
+  color: white;
+  border: 1px solid #1f9c95;
+}
+
+.my-cancel-btn {
+  background-color: white;
+  color: #1f9c95;
+  border: 1px solid #1f9c95;
+}
+.my-confirm-btn2 {
+  background-color: #1f9c95;
+  color: white;
+  border: 1px solid #1f9c95;
+}
+</style>
