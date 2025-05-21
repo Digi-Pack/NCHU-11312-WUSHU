@@ -11,18 +11,30 @@ const user = computed(() => page.props.auth.user);
 const isMobileMenuOpen = ref(false);
 const isSearchActive = ref(false);
 
-// cart 數量顯示
+// 購物車數量計算
 const cartStore = useCartStore();
 const { cartCount } = storeToRefs(cartStore)
 // const cartCount = computed(() => cartStore.cartCount);
 
-// 追蹤視窗寬度
+// 視窗寬度變數與響應式布局控制
 const windowWidth = ref(window.innerWidth);
 
-// 裝置判斷 - 使用 tailwindcss 的斷點
+
 const isMobile = computed(() => windowWidth.value <= 600);
 const isTablet = computed(() => windowWidth.value > 600 && windowWidth.value <= 1270);
-const isDesktop = computed(() => windowWidth.value > 1270);
+const isDesktopStyle = computed(() => windowWidth.value > 1270); 
+const isLaptop = computed(() => windowWidth.value > 1270 && windowWidth.value <= 1600); 
+const isDesktop = computed(() => windowWidth.value > 1600); 
+
+// 容器大小計算 - 根據屏幕寬度動態調整，但保持邊距一致
+const containerMaxWidth = computed(() => {
+  if (windowWidth.value > 1600) {
+    return 'max-w-[1800px]'; // 桌面尺寸
+  } else if (windowWidth.value > 1270) {
+    return 'max-w-[1240px]'; // 筆電尺寸
+  }
+  return ''; 
+});
 
 const toggleMobileMenu = () => {
   isMobileMenuOpen.value = !isMobileMenuOpen.value;
@@ -38,7 +50,7 @@ const toggleSearch = () => {
 const handleResize = () => {
   windowWidth.value = window.innerWidth;
   // 超過平板版，關閉手機選單
-  if (windowWidth.value > 1270) {
+  if (isDesktopStyle.value) {
     isMobileMenuOpen.value = false;
   }
 };
@@ -63,7 +75,7 @@ const handleClickOutside = (event) => {
 
 // 生命週期
 onMounted(() => {
-  // 監聽視窗變動
+  // 監聽視窗變化
   window.addEventListener('resize', handleResize);
   document.addEventListener('click', handleClickOutside);
   handleResize();
@@ -82,14 +94,14 @@ watch([isMobile, isTablet], () => {
 });
 
 const scrollToAboutSection = () => {
-  // 如果當前頁面是首頁，滾動到 "關於站主" 區塊
+  // 如果當前頁面是首頁，跳轉至 "關於主題" 區塊
   if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
     const section = document.getElementById('about-section');
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' });
     }
   } else {
-    // 如果不是首頁，跳轉到首頁並滾動到 "關於站主" 區塊
+    // 如果不是首頁，轉回到首頁並跳轉至 "關於主題" 區塊
     window.location.href = '/#about-section';
   }
 };
@@ -100,8 +112,9 @@ const scrollToAboutSection = () => {
     <div :class="[
       'flex w-full items-center',
       isMobile ? 'h-[60px]' : 'h-[80px]',
-      !isTablet && !isMobile ? 'mt-6 px-4 sm:px-6' : 'mt-0 px-4',
-      isDesktop ? 'mx-auto max-w-[1800px] rounded-full' : '',
+      isDesktopStyle ? 'mx-auto mt-6 rounded-full' : 'mt-0',
+      isDesktopStyle ? 'px-6' : 'px-4', 
+      containerMaxWidth, 
       'bg-white/75',
       'justify-between xl:justify-around',
     ]">
@@ -113,25 +126,25 @@ const scrollToAboutSection = () => {
         </Link>
       </div>
 
-      <!-- 電腦版選單 -->
-      <div v-if="!isTablet && !isMobile" class="flex justify-center">
+      <!-- 電腦版選單 (筆電和桌面版) -->
+      <div v-if="isDesktopStyle" class="flex justify-center">
         <nav
-          class="flex cursor-pointer items-center gap-4 font-['Microsoft_JhengHei'] text-[24px] font-bold leading-[1] tracking-normal text-black">
+          class="flex cursor-pointer items-center gap-6 font-['Microsoft_JhengHei'] text-[24px] font-bold leading-[1] tracking-normal text-black">
           <Link :href="route('wushu.home') + '#about-section'" class="whitespace-nowrap px-3 py-2 hover:text-[#1f9c95]">
-          關於站主 </Link>
+          關於主題 </Link>
           <Link :href="route('wushu.list')" class="whitespace-nowrap px-3 py-2 hover:text-[#1f9c95]"> 服務與課程 </Link>
         </nav>
       </div>
 
-      <!-- 電腦版右側 -->
-      <div v-if="!isTablet && !isMobile" class="flex items-center gap-4 text-black">
+      <!-- 電腦版右側 (筆電和桌面版) -->
+      <div v-if="isDesktopStyle" class="flex items-center gap-6 text-black"> <!-- 調整間距為固定的gap-6 -->
         <!-- 購物車 -->
         <div class="relative">
           <Link :href="route('wushu.cart')" aria-label="購物車"
             class="group relative flex h-8 w-8 items-center justify-center">
           <img src="@/images/cart.svg" alt="購物車" class="absolute inset-0 h-8 w-8 group-hover:hidden" />
           <img src="@/images/gcart.svg" alt="購物車懸停" class="absolute inset-0 hidden h-8 w-8 group-hover:block" />
-          <!-- 數量氣泡 -->
+          <!-- 數量標示 -->
           <span v-if="cartCount > 0"
             class="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
             {{ cartCount }}
@@ -158,7 +171,7 @@ const scrollToAboutSection = () => {
       </div>
 
       <!-- 平板版 -->
-      <div v-if="isTablet && !isMobile" class="flex items-center gap-3">
+      <div v-if="isTablet" class="flex items-center gap-3">
         <div class="flex items-center gap-3">
           <!-- 購物車 -->
           <div class="relative">
@@ -167,7 +180,7 @@ const scrollToAboutSection = () => {
             <img src="@/images/cart.svg" alt="購物車" class="absolute inset-0 h-7 w-7 group-hover:hidden" />
             <img src="@/images/gcart.svg" alt="購物車懸停" class="absolute inset-0 hidden h-7 w-7 group-hover:block" />
             </Link>
-            <!-- 數量氣泡 -->
+            <!-- 數量標示 -->
             <span v-if="cartCount > 0"
               class="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
               {{ cartCount }}
@@ -192,7 +205,7 @@ const scrollToAboutSection = () => {
             <img src="@/images/cart.svg" alt="購物車" class="absolute inset-0 h-6 w-6 group-hover:hidden" />
             <img src="@/images/gcart.svg" alt="購物車懸停" class="absolute inset-0 hidden h-6 w-6 group-hover:block" />
             </Link>
-            <!-- 數量氣泡 -->
+            <!-- 數量標示 -->
             <span v-if="cartCount > 0"
               class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
               {{ cartCount }}
@@ -211,16 +224,15 @@ const scrollToAboutSection = () => {
 
 
   <!-- 展開的選單 (平板和手機版) -->
-  <div v-if="(isTablet || isMobile) && isMobileMenuOpen"
+  <div v-if="!isDesktopStyle && isMobileMenuOpen"
     class="fixed left-0 right-0 z-40 w-full overflow-hidden bg-[#F2F2F2] shadow-md transition-all duration-300"
     :class="isMobile ? 'top-[60px]' : 'top-[80px]'" :style="{ maxHeight: isMobileMenuOpen ? '300px' : '0' }">
     <nav class="flex flex-col py-2">
-      <!-- 關於站主（滾動至區塊） -->
-       <Link 
-       :href="route('wushu.home') + '#about-section'"        
+      <!-- 關於主題(跳轉到區塊) -->
+      <Link :href="route('wushu.home') + '#about-section'"
         class="flex items-center border-b border-gray-300 px-6 py-3 font-['Microsoft_JhengHei'] text-[18px] font-bold text-[#0b0b0b] hover:bg-darkGray hover:text-white sm:px-10 sm:text-[22px]"
         :class="isMobile ? 'justify-center' : 'justify-start'">
-      關於站主
+      關於主題
       </Link>
 
       <!-- 服務與課程 -->
@@ -247,9 +259,6 @@ const scrollToAboutSection = () => {
       </template>
     </nav>
   </div>
-
-
-
 </template>
 
 <style scoped>
